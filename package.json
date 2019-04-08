@@ -1,0 +1,28 @@
+{
+  "name": "logitech-craft-plugin",
+  "version": "1.0.0",
+  "description": "A JavaScript (and TypeScript) API for creating a Logitech Craft plugin",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idolize/logitech-craft-plugin.git"
+  },
+  "author": "David Idol",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/idolize/logitech-craft-plugin/issues"
+  },
+  "homepage": "https://github.com/idolize/logitech-craft-plugin#readme",
+  "dependencies": {
+    "ws": "^6.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^11.13.0",
+    "@types/ws": "^6.0.1",
+    "tslint": "^5.15.0",
+    "typescript": "^3.4.2"
+  }
+}
