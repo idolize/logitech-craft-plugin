@@ -63,6 +63,7 @@ export type ListenerFn = (message: any) => any;
 export type CraftPluginEventType =
   | 'connect:begin'
   | 'connect:done'
+  | 'connect:failed'
   | 'crown:turn'
   | 'crown:turn:positive'
   | 'crown:turn:negative'
@@ -124,7 +125,7 @@ export default class CraftPlugin {
         }
       });
       this.ws.on('error', (err) => {
-        this.emitter.emit('connect:faled', err);
+        this.emitter.emit('connect:failed', err);
         console.error('Failed to connect to Logitech Options', err.message);
         if (this.opts.reconnect) {
           setTimeout(() => {

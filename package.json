@@ -2,9 +2,12 @@
   "name": "logitech-craft-plugin",
   "version": "1.0.0",
   "description": "A JavaScript (and TypeScript) API for creating a Logitech Craft plugin",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepublish": "npm run build",
+    "build": "tsc",
+    "lint": "tslint src/*.ts",
+    "test": "npm run lint && echo 'No unit tests yet'"
   },
   "repository": {
     "type": "git",
