@@ -68,3 +68,7 @@ craftKeyboard.changeTool(toolIdString);
 // Close the connection
 craftKeyboard.close();
 ```
+
+### More extensive example
+
+This code is used in the [Logitech Craft VS Code extension](https://github.com/idolize/logitech-craft-vscode).
