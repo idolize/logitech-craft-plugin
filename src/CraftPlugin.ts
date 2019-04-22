@@ -82,6 +82,7 @@ export default class CraftPlugin {
   private emitter: EventEmitter;
   private sessionId: string | undefined;
   private opts: CraftPluginOptions;
+  private touchTimer: any | undefined;
 
   constructor({ pluginGuid, reconnect = true }: CraftPluginOptions) {
     this.opts = { pluginGuid, reconnect };
@@ -97,6 +98,8 @@ export default class CraftPlugin {
     if (this.ws) {
       // We are reconnecting so clean up the old instance
       this.ws.removeAllListeners();
+      clearTimeout(this.touchTimer);
+      this.touchTimer = undefined;
     }
     this.ws = new WebSocket(LOGITECH_OPTIONS_URL);
     this.emitter.emit('connect:begin');
@@ -150,14 +153,22 @@ export default class CraftPlugin {
     } else if (message.ratchet_delta < 0) {
       this.emitter.emit('crown:turn:negative', message);
     }
+    clearTimeout(this.touchTimer);
+    this.touchTimer = undefined;
   }
 
   private handleCrownTouch(message: CrownTouchMessage) {
     this.emitter.emit('crown:touch', message);
     if (message.touch_state === 0) {
       this.emitter.emit('crown:touch:released', message);
+      clearTimeout(this.touchTimer);
+      this.touchTimer = undefined;
     } else if (message.touch_state === 1) {
       this.emitter.emit('crown:touch:touched', message);
+      this.touchTimer = setTimeout(() => {
+        this.emitter.emit('crown:touch:longTouch', message);
+        this.touchTimer = undefined;
+      }, 1000);
     }
   }
 
