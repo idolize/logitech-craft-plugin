@@ -120,6 +120,7 @@ export default class CraftPlugin {
             break;
           case 'crown_touch_event':
             this.handleCrownTouch(message as CrownTouchMessage);
+            break;
           default:
             break;
         }
