@@ -189,6 +189,8 @@ export default class CraftPlugin {
   }
 
   public close() {
+    clearTimeout(this.touchTimer);
+    this.touchTimer = undefined;
     this.emitter.removeAllListeners();
     this.ws.close();
   }
