@@ -41,7 +41,7 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
       - run:
           name: Publish package
-          command: npm publish
+          command: npm publish | true # always try to publish, although it will fail if version hasn't changed
 
 workflows:
   version: 2
