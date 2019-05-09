@@ -6,7 +6,7 @@ const LOGITECH_OPTIONS_URL = 'ws://localhost:10134';
 
 const stringify = (obj: any) => JSON.stringify(obj);
 
-const sendRegister = (pluginGuid: string) => stringify({
+const registerOutgoingMessage = (pluginGuid: string) => stringify({
   PID: process.pid,
   application_version: '1.0',
   execName: process.title,
@@ -14,7 +14,7 @@ const sendRegister = (pluginGuid: string) => stringify({
   plugin_guid: pluginGuid,
 });
 
-const sendToolChange = (sessionId: string, toolId: string) => stringify({
+const toolChangeOutgoingMessage = (sessionId: string, toolId: string) => stringify({
   message_type: 'tool_change',
   reset_options: true,
   session_id: sessionId,
@@ -74,25 +74,34 @@ export type CraftPluginEventType =
 interface CraftPluginOptions {
   pluginGuid: string;
   reconnect?: boolean;
+  crownTurnCancelsRelease?: boolean;
 }
 
 // https://github.com/Logitech/logi_craft_sdk/blob/master/documentation/Craft_Crown_SDK.md
 export default class CraftPlugin {
+  public static log: boolean = true;
   private ws!: WebSocket;
   private emitter: EventEmitter;
   private sessionId: string | undefined;
   private opts: CraftPluginOptions;
   private touchTimer: any | undefined;
+  private touchingCrown: boolean = false;
 
-  constructor({ pluginGuid, reconnect = true }: CraftPluginOptions) {
-    this.opts = { pluginGuid, reconnect };
+  constructor({ pluginGuid, reconnect = true, crownTurnCancelsRelease = false }: CraftPluginOptions) {
+    this.opts = { pluginGuid, reconnect, crownTurnCancelsRelease };
     this.emitter = new EventEmitter();
     this.connectWithManager();
   }
 
+  private static logToConsole(message: string) {
+    if (CraftPlugin.log) {
+      console.log(`[logitech-craft-plugin] ${message}`);
+    }
+  }
+
   private connectWithManager() {
     if (this.ws && this.ws.readyState !== this.ws.CONNECTING && this.ws.readyState !== this.ws.CLOSED) {
-      console.log('Already connected');
+      CraftPlugin.logToConsole('Already connected');
       return;
     }
     if (this.ws) {
@@ -100,12 +109,13 @@ export default class CraftPlugin {
       this.ws.removeAllListeners();
       clearTimeout(this.touchTimer);
       this.touchTimer = undefined;
+      this.touchingCrown = false;
     }
     this.ws = new WebSocket(LOGITECH_OPTIONS_URL);
     this.emitter.emit('connect:begin');
     this.ws.once('open', () => {
       this.sessionId = undefined;
-      this.ws.send(sendRegister(this.opts.pluginGuid));
+      this.ws.send(registerOutgoingMessage(this.opts.pluginGuid));
       this.ws.on('message', (data: string) => {
         // route the message
         let message: ReceiveMessage;
@@ -130,7 +140,7 @@ export default class CraftPlugin {
       });
       this.ws.on('error', (err) => {
         this.emitter.emit('connect:failed', err);
-        console.error('Failed to connect to Logitech Options', err.message);
+        CraftPlugin.logToConsole('Failed to connect to Logitech Options ' + err.message);
         if (this.opts.reconnect) {
           setTimeout(() => {
             this.connectWithManager();
@@ -155,6 +165,9 @@ export default class CraftPlugin {
     }
     clearTimeout(this.touchTimer);
     this.touchTimer = undefined;
+    if (this.opts.crownTurnCancelsRelease) {
+      this.touchingCrown = false;
+    }
   }
 
   private handleCrownTouch(message: CrownTouchMessage) {
@@ -163,6 +176,7 @@ export default class CraftPlugin {
       this.emitter.emit('crown:touch:released', message);
       clearTimeout(this.touchTimer);
       this.touchTimer = undefined;
+      this.touchingCrown = false;
     } else if (message.touch_state === 1) {
       this.emitter.emit('crown:touch:touched', message);
       this.touchTimer = setTimeout(() => {
@@ -172,9 +186,13 @@ export default class CraftPlugin {
     }
   }
 
+  public get isTouchingCrown(): boolean {
+    return this.touchingCrown;
+  }
+
   public changeTool(toolId: string) {
     if (this.sessionId) {
-      this.ws.send(sendToolChange(this.sessionId, toolId));
+      this.ws.send(toolChangeOutgoingMessage(this.sessionId, toolId));
     } else {
       throw new Error('Not connected yet. Make sure to only send this once the "connect:done" event has occurred');
     }
@@ -191,6 +209,7 @@ export default class CraftPlugin {
   public close() {
     clearTimeout(this.touchTimer);
     this.touchTimer = undefined;
+    this.touchingCrown = false;
     this.emitter.removeAllListeners();
     this.ws.close();
   }
