@@ -1,5 +1,7 @@
 # logitech-craft-plugin
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/idolize/logitech-craft-plugin.svg)](https://greenkeeper.io/)
+
 A JavaScript (and TypeScript) API for creating a Logitech Options Craft keyboard plugin.
 
 Make sure to reference the [official Craft SDK documentation as well](https://github.com/Logitech/logi_craft_sdk/blob/master/documentation/Craft_Crown_SDK.md).
