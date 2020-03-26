@@ -1,6 +1,6 @@
 {
   "name": "logitech-craft-plugin",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A JavaScript (and TypeScript) API for creating a Logitech Craft plugin",
   "main": "lib/index.js",
   "scripts": {
