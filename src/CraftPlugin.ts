@@ -2,7 +2,7 @@ import WebSocket from 'ws';
 import process from 'process';
 import EventEmitter from 'events';
 
-const LOGITECH_OPTIONS_URL = 'ws://localhost:10134';
+const LOGITECH_OPTIONS_URL = 'ws://127.0.0.1:10134';
 
 const stringify = (obj: any) => JSON.stringify(obj);
 
@@ -86,7 +86,9 @@ export default class CraftPlugin {
   constructor({ pluginGuid, reconnect = true }: CraftPluginOptions) {
     this.opts = { pluginGuid, reconnect };
     this.emitter = new EventEmitter();
-    this.connectWithManager();
+    setTimeout(() => {
+      this.connectWithManager();
+    }, 1);
   }
 
   private connectWithManager() {
