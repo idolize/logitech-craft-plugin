@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/idolize/logitech-craft-plugin#readme",
   "dependencies": {
-    "ws": "^7.2.3"
+    "ws": "^7.3.0"
   },
   "devDependencies": {
     "@types/node": "^12.12.31",
